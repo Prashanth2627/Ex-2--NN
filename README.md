@@ -1,8 +1,10 @@
-<H3>Name</H3>
-<H3>Register no.</H3>
-<H3>Date</H3>
+<H3>Name: PRASHANTH K</H3>
+<H3>Register no : 212223230152/H3>
+<H3>Date : 04.11.2026</H3>
 <H3>Experiment No. 2 </H3>
+ 
 ## Implementation of Perceptron for Binary Classification
+ 
 # AIM:
 To implement a perceptron for classification using Python<BR>
 
@@ -49,11 +51,97 @@ STEP 9:For ‘N ‘ iterations ,do the following:<BR>
 STEP 10:Plot the error for each iteration <BR>
 STEP 11:Print the accuracy<BR>
 # PROGRAM:
-    ''' Insert your code here '''
+```
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_blobs
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# Generate dataset
+x, y = make_blobs(n_samples=100, centers=2,
+                  n_features=2, random_state=1)
+
+df = pd.DataFrame(x, columns=['Feature1', 'Feature2'])
+df['Class'] = y
+print(df.head())
+
+# Save dataset
+df.to_csv('blobs_dataset.csv', index=False)
+
+# Scatter plot
+plt.scatter(x[:, 0], x[:, 1], c=y)
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.title("Synthetic Blobs Dataset")
+plt.show()
+
+
+# Perceptron class
+class Perceptron:
+    def __init__(self, learning_rate=0.05):
+        self.learning_rate = learning_rate
+        self.b = 0.0
+        self.w = None
+        self.misclassified_samples = []
+
+    def fit(self, x, y, n_iter=20):
+        self.b = 0.0
+        self.w = np.zeros(x.shape[1])
+        self.misclassified_samples = []
+
+        for _ in range(n_iter):
+            errors = 0
+            for xi, yi in zip(x, y):
+                update = self.learning_rate * (yi - self.predict(xi))
+                self.b += update
+                self.w += update * xi
+                errors += int(update != 0.0)
+            self.misclassified_samples.append(errors)
+
+    def f(self, x):
+        return np.dot(x, self.w) + self.b
+
+    def predict(self, x):
+        return np.where(self.f(x) >= 0, 1, -1)
+
+
+# Convert classes to -1 and 1
+y = np.where(y == 0, -1, 1)
+
+# Standardize features
+x[:, 0] = (x[:, 0] - x[:, 0].mean()) / x[:, 0].std()
+x[:, 1] = (x[:, 1] - x[:, 1].mean()) / x[:, 1].std()
+
+# Split dataset
+x_train, x_test, y_train, y_test = train_test_split(
+    x, y, test_size=0.2, random_state=1
+)
+
+# Train model
+classifier = Perceptron(learning_rate=0.05)
+classifier.fit(x_train, y_train, n_iter=20)
+
+# Calculate accuracy
+y_pred = classifier.predict(x_test)
+print("Accuracy:", accuracy_score(y_test, y_pred) * 100, "%")
+
+# Error graph
+plt.plot(range(1, 21),
+         classifier.misclassified_samples, marker='o')
+plt.xlabel("Epoch")
+plt.ylabel("Errors")
+plt.title("Perceptron Learning")
+plt.show()
+
+```
 
 # OUTPUT:
 
-    ''' Show your result '''
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
 
 # RESULT:
  Thus, a single layer perceptron model is implemented using python to classify Iris data set.
